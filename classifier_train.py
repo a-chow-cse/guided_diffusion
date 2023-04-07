@@ -124,8 +124,8 @@ def main():
             losses[f"{prefix}_acc@1"] = compute_top_k(
                 logits, sub_labels, k=1, reduction="none"
             )
-            losses[f"{prefix}_acc@5"] = compute_top_k(
-                logits, sub_labels, k=5, reduction="none"
+            losses[f"{prefix}_acc@2"] = compute_top_k(
+                logits, sub_labels, k=2, reduction="none"
             )
             log_loss_dict(diffusion, sub_t, losses)
             del losses

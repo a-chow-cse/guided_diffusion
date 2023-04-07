@@ -43,14 +43,18 @@ def main():
 
     logger.log("loading classifier...")
     classifier = create_classifier(**args_to_dict(args, classifier_defaults().keys()))
+
     classifier.load_state_dict(
         dist_util.load_state_dict(args.classifier_path, map_location="cpu")
     )
-    classifier.to(dist_util.dev())
+    classifier.to(dist_util.dev()) #classifier to cpu/gpu
     if args.classifier_use_fp16:
         classifier.convert_to_fp16()
-    classifier.eval()
+    classifier.eval() #evalution mood
 
+    ###defines a function cond_fn that computes the conditional 
+    #gradient of the log-likelihood of a classifier output with respect to the input image x.
+    ###
     def cond_fn(x, t, y=None):
         assert y is not None
         with th.enable_grad():

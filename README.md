@@ -1,3 +1,36 @@
+# how to setup
+Here, I worked with pretrained 128*128 diffusion model
+- Download the classifier and diffusion model
+- add `*.pt` in `.gitignore` file
+- `python setup.py install`
+- move the script you want to root folder
+- run
+
+```
+python classifier_sample.py --attention_resolutions 32,16,8 --class_cond True --diffusion_steps 1000 --image_size 128 --learn_sigma True --noise_schedule linear --num_channels 256 --num_heads 4 --num_res_blocks 2 --resblock_updown True --use_fp16 True --use_scale_shift_norm True --classifier_scale 0.5 --classifier_path models/128x128_classifier.pt --model_path models/128x128_diffusion.pt --batch_size 4 --num_samples 10 --timestep_respacing 250
+```
+---
+## Results
+- Files saved as .npz file in `/tmp/openai-2023-04-04-21-37-37-105960/samples_10x128x128x3.npz`
+- How to see Images
+    - `python showSample.py`
+## TroubleShooting
+- If got an error about mpi4py
+    - This solved mine ` conda install -c conda-forge mpi4py mpich `
+- If got `ModuleNotFoundError: No module named 'six'`
+    - add `"matplotlib"` in `setup.py` and run this file again
+---
+# training on custom data
+- put all images in a folder in `./datasets` folder
+- for class condition, rename all the files as `className_{...}.png/.JPEG`
+- Run `ResizeDataset.py` to resize image, so that center crop doesn't cut the middle part
+- Move `classifier_train.py` outside of scripts
+- Run the following command
+```
+mpiexec -n N python classifier_train.py --data_dir datasets/butterfly_img/ --iterations 300000 --anneal_lr True --batch_size 4 --lr 3e-4 --save_interval 10000 --weight_decay 0.05 --image_size 128 --classifier_attention_resolutions 32,16,8 --classifier_depth 2 --classifier_width 128 --classifier_pool attention --classifier_resblock_updown True --classifier_use_scale_shift_norm True
+```
+## Results
+---
 # guided-diffusion
 
 This is the codebase for [Diffusion Models Beat GANS on Image Synthesis](http://arxiv.org/abs/2105.05233).
