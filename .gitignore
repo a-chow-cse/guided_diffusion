@@ -2,3 +2,4 @@
 __pycache__/
 classify_image_graph_def.pb
 *.pt
+!pretrained_on_mimic_pair_3.pt
