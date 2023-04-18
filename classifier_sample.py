@@ -25,6 +25,7 @@ from guided_diffusion.script_util import (
 
 def main():
     args = create_argparser().parse_args()
+    print(args)
 
     dist_util.setup_dist()
     logger.configure()
@@ -33,9 +34,11 @@ def main():
     model, diffusion = create_model_and_diffusion(
         **args_to_dict(args, model_and_diffusion_defaults().keys())
     )
+    
     model.load_state_dict(
         dist_util.load_state_dict(args.model_path, map_location="cpu")
     )
+    
     model.to(dist_util.dev())
     if args.use_fp16:
         model.convert_to_fp16()
@@ -76,7 +79,9 @@ def main():
         classes = th.randint(
             low=0, high=NUM_CLASSES, size=(args.batch_size,), device=dist_util.dev()
         )
+        print(classes)
         model_kwargs["y"] = classes
+        print(model_kwargs)
         sample_fn = (
             diffusion.p_sample_loop if not args.use_ddim else diffusion.ddim_sample_loop
         )
@@ -100,13 +105,15 @@ def main():
         all_labels.extend([labels.cpu().numpy() for labels in gathered_labels])
         logger.log(f"created {len(all_images) * args.batch_size} samples")
 
+    print(all_labels)
     arr = np.concatenate(all_images, axis=0)
     arr = arr[: args.num_samples]
     label_arr = np.concatenate(all_labels, axis=0)
     label_arr = label_arr[: args.num_samples]
     if dist.get_rank() == 0:
         shape_str = "x".join([str(x) for x in arr.shape])
-        out_path = os.path.join(logger.get_dir(), f"samples_{shape_str}.npz")
+        #out_path = os.path.join(logger.get_dir(), f"samples_{shape_str}.npz")
+        out_path = os.path.join("./", f"samples_{shape_str}.npz")
         logger.log(f"saving to {out_path}")
         np.savez(out_path, arr, label_arr)
 

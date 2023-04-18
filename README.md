@@ -2,7 +2,7 @@
 Here, I worked with pretrained 128*128 diffusion model
 - Download the classifier and diffusion model
 - add `*.pt` in `.gitignore` file
-- `python setup.py install`
+- `source activate guided`
 - move the script you want to root folder
 - run
 
@@ -21,13 +21,13 @@ python classifier_sample.py --attention_resolutions 32,16,8 --class_cond True --
     - add `"matplotlib"` in `setup.py` and run this file again
 ---
 # training on custom data
-- put all images in a folder in `./datasets` folder
+- put all images in a folder in `./datasets` folder( doesn't matter which folder)
 - for class condition, rename all the files as `className_{...}.png/.JPEG`
 - Run `ResizeDataset.py` to resize image, so that center crop doesn't cut the middle part
 - Move `classifier_train.py` outside of scripts
 - Run the following command
 ```
-mpiexec -n N python classifier_train.py --data_dir datasets/butterfly_img/ --iterations 300000 --anneal_lr True --batch_size 4 --lr 3e-4 --save_interval 10000 --weight_decay 0.05 --image_size 128 --classifier_attention_resolutions 32,16,8 --classifier_depth 2 --classifier_width 128 --classifier_pool attention --classifier_resblock_updown True --classifier_use_scale_shift_norm True
+python3 start.py
 ```
 ## Results
 ---

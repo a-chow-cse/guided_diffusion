@@ -44,8 +44,8 @@ def change_image(folder_name,desired_size):
         else:
             change_image(f.path,desired_size)
 
-folder_name="./butterfly_img/"
+folder_name="./mimic_pair_3/"
 
-desired_size = 128
+desired_size = 256
 
 change_image(folder_name,desired_size)

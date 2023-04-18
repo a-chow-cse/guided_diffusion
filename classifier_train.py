@@ -27,6 +27,7 @@ from guided_diffusion.train_util import parse_resume_step_from_filename, log_los
 
 def main():
     args = create_argparser().parse_args()
+    print(args)
 
     dist_util.setup_dist()
     logger.configure()
@@ -76,7 +77,7 @@ def main():
         batch_size=args.batch_size,
         image_size=args.image_size,
         class_cond=True,
-        random_crop=True,
+        random_crop=False,
     )
     if args.val_data_dir:
         val_data = load_data(
@@ -160,6 +161,7 @@ def main():
         ):
             logger.log("saving model...")
             save_model(mp_trainer, opt, step + resume_step)
+            return
 
     if dist.get_rank() == 0:
         logger.log("saving model...")

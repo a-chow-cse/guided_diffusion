@@ -1,0 +1,7 @@
+name : guided
+dependencies: 
+  - numpy
+  - torchvision
+  - mpi4py-mpich
+  - blobfile>=1.0.5
+  - tqdm
