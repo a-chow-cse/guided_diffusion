@@ -10,6 +10,7 @@ from PIL import Image, ImageOps
 import time
 import os
 import copy
+import torch.nn.functional as F
 import torchvision.transforms.functional as TF
 from torchvision import datasets, models, transforms
 import composer.functional as cf
@@ -206,6 +207,37 @@ def main():
 
     #torch.save(model_ft.state_dict(), "./pretrained_on_mimic_pair_3.pt")
 
+def evaluate_model():
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    classifier_path="./pretrained_on_mimic_pair_3.pt"
+
+    classifier = timm.create_model("resnet50", num_classes=2)
+    classifier.to(memory_format=torch.channels_last)
+    cf.apply_blurpool(classifier)
+
+
+    state_dict = torch.load(classifier_path, map_location=lambda storage, loc: storage)
+    classifier.load_state_dict(state_dict)
+
+    classifier.to(device) #classifier to cpu/gpu
+    classifier.eval() #evalution mood
+
+    # Load and preprocess input image
+    input_image = Image.open('../datasets/mimic_pair_3/train/erato_notabilis/eratoNotabilis_1.png')
+    preprocess = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+    input_tensor = preprocess(input_image)
+    input_batch = input_tensor.unsqueeze(0)  # Add batch dimension
+    input_batch = input_batch.to(device)
+
+    # Pass input through model and get predicted class probabilities
+    with torch.no_grad():
+        output=classifier(input_batch)
+        print(output)
+    
 
 if __name__ == "__main__":
-    main()
+    #main()
+    evaluate_model()

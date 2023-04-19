@@ -58,10 +58,6 @@ def main():
     state_dict = th.load(args.classifier_path, map_location=lambda storage, loc: storage)
     classifier.load_state_dict(state_dict)
 
-    return
-    classifier.load_state_dict(
-        dist_util.load_state_dict(args.classifier_path, map_location="cpu")  
-    )
     classifier.to(dist_util.dev()) #classifier to cpu/gpu
     if args.classifier_use_fp16:
         classifier.convert_to_fp16()
@@ -74,7 +70,7 @@ def main():
         assert y is not None
         with th.enable_grad():
             x_in = x.detach().requires_grad_(True)
-            logits = classifier(x_in, t)
+            logits = classifier(x_in)
             log_probs = F.log_softmax(logits, dim=-1)
             selected = log_probs[range(len(logits)), y.view(-1)]
             return th.autograd.grad(selected.sum(), x_in)[0] * args.classifier_scale
