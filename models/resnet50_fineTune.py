@@ -134,6 +134,8 @@ def main():
 
 
     state_dict = torch.load(path, map_location=lambda storage, loc: storage)
+    print(list(state_dict["state"]["model"]))
+    return
     # Actual model keys
     model_dict = state_dict["state"]["model"]
     # Trained with distributed data parallel, so the keys are prefixed with 'module.'
@@ -202,7 +204,7 @@ def main():
     print("Starting Training & Evaluation...")
     model_ft, hist = train_model(model, dataloaders_dict, criterion, optimizer_ft, num_epochs=num_epochs)
 
-    torch.save(model_ft, "./pretrained_on_mimic_pair_3.pt")
+    #torch.save(model_ft.state_dict(), "./pretrained_on_mimic_pair_3.pt")
 
 
 if __name__ == "__main__":

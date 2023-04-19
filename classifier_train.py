@@ -161,7 +161,7 @@ def main():
         ):
             logger.log("saving model...")
             save_model(mp_trainer, opt, step + resume_step)
-            return
+            #return
 
     if dist.get_rank() == 0:
         logger.log("saving model...")

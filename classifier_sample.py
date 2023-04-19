@@ -10,6 +10,9 @@ import numpy as np
 import torch as th
 import torch.distributed as dist
 import torch.nn.functional as F
+import torchvision.models as models
+import composer.functional as cf
+import timm
 
 from guided_diffusion import dist_util, logger
 from guided_diffusion.script_util import (
@@ -28,9 +31,9 @@ def main():
     print(args)
 
     dist_util.setup_dist()
-    logger.configure()
+    #logger.configure()
 
-    logger.log("creating model and diffusion...")
+    #logger.log("creating model and diffusion...")
     model, diffusion = create_model_and_diffusion(
         **args_to_dict(args, model_and_diffusion_defaults().keys())
     )
@@ -44,11 +47,20 @@ def main():
         model.convert_to_fp16()
     model.eval()
 
-    logger.log("loading classifier...")
-    classifier = create_classifier(**args_to_dict(args, classifier_defaults().keys()))
+    #logger.log("loading classifier...")
+    #classifier = create_classifier(**args_to_dict(args, classifier_defaults().keys()))
 
+    classifier = timm.create_model("resnet50", num_classes=2)
+    classifier.to(memory_format=th.channels_last)
+    cf.apply_blurpool(classifier)
+
+
+    state_dict = th.load(args.classifier_path, map_location=lambda storage, loc: storage)
+    classifier.load_state_dict(state_dict)
+
+    return
     classifier.load_state_dict(
-        dist_util.load_state_dict(args.classifier_path, map_location="cpu")
+        dist_util.load_state_dict(args.classifier_path, map_location="cpu")  
     )
     classifier.to(dist_util.dev()) #classifier to cpu/gpu
     if args.classifier_use_fp16:
